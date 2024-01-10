@@ -1,0 +1,42 @@
+package todo
+
+import "strconv"
+import "github.com/cosmin220304/go-echo-templ-htmx/data/model"
+import "github.com/cosmin220304/go-echo-templ-htmx/view/layout"
+
+templ TodoForm(todos []model.Todo) {
+	@layout.Base() {
+		<div class="flex flex-col items-center justify-center">
+			<h1 class="text-lg mt-4">Todo list</h1>
+			<form hx-post="/todos" hx-trigger="submit" hx-target="#newTodo" hx-swap="beforebegin" hx-on::after-request="this.reset()" class="flex gap-1">
+				<input type="text" name="name" class="input" required/>
+				<button class="btn btn-secondary">
+					Add
+				</button>
+			</form>
+			@TodosList(todos)
+		</div>
+	}
+}
+
+templ TodosList(todos []model.Todo) {
+	<ul class="flex flex-col items-center gap-2 w-96">
+		for _, todo := range todos {
+			@TodoItem(todo)
+		}
+		<div id="newTodo"></div>
+	</ul>
+}
+
+templ TodoItem(todo model.Todo) {
+	<li id={ "todo-" + strconv.Itoa(int(todo.ID)) } hx-target="this" class="ring-1 flex justify-between w-full">
+		{ todo.Name }
+		<button
+			hx-delete={ "/todos/" + strconv.Itoa(int(todo.ID)) }
+			hx-swap="outerHTML"
+			hx-confirm="Are you sure?"
+		>
+			delete
+		</button>
+	</li>
+}
